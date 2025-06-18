@@ -1,23 +1,30 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <Simpletimer.h>
-#include <SimpleTimer.h>
+// #include <Simpletimer.h>
+// #include <SimpleTimer.h>
+// #include <ArduinoJson.h>
+// #include <Thermistor3.h>
  
-Simpletimer timer;
-//SimpleTimer timer;
- 
+// Simpletimer timer;
+
+// Thermistor temp(1);
+
+// double average =0;
+// double resistor = 10000;
+// int sample = 5000;
 float calibration_value = 21.34 - 0.7;
 int phval = 0; 
 unsigned long int avgval; 
-int buffer_arr[10],temp;
+int buffer_arr[10],temp1;
 bool led_ini;
 float ph_act;
 float ph;
-int Temperature;
+double temperature;
+// String message = "";
+// bool messageReady = false;
 
 // for the OLED display
-
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
  
@@ -37,16 +44,15 @@ void setup()
   pinMode(12, OUTPUT);  //VERDE
 }
 void loop() {
-  timer.run(1000L); // Initiates SimpleTimer
+  // timer.run(1000L); // Initiates SimpleTimer
 
+  digitalWrite(10, LOW);  //AZUL
+  delay(100);
+  digitalWrite(10, HIGH); //AZUL
+  delay(100);
+  digitalWrite(10, LOW);  //AZUL
 
-    digitalWrite(10, LOW);  //AZUL
-    delay(100);
-    digitalWrite(10, HIGH); //AZUL
-    delay(100);
-    digitalWrite(10, LOW);  //AZUL
-
-
+  //ph sensor VALUE
  for(int i=0;i<10;i++) 
  { 
   buffer_arr[i]=analogRead(A0);
@@ -58,9 +64,9 @@ void loop() {
   {
     if(buffer_arr[i]>buffer_arr[j])
     {
-      temp=buffer_arr[i];
+      temp1=buffer_arr[i];
       buffer_arr[i]=buffer_arr[j];
-      buffer_arr[j]=temp;
+      buffer_arr[j]=temp1;
     }
   }
  }
@@ -70,15 +76,23 @@ void loop() {
  float volt=(float)avgval*5.0/1024/6; 
   ph_act = -5.70 * volt + calibration_value;
   ph = ph_act;
-  Temperature = 22;
 
-  if(ph>=7.00 && 8.00>ph){
+  //Temperature
+  // for(int index =0; index < sample; index++){
+  //   double temperature_for = temp.getTemp(resistor);
+  //   average += temperature_for; 
+  //   // a small delay for read again
+  //   delayMicroseconds(1);
+  // }
+  temperature = 23;//average / sample;
+
+  if(ph>=6.00 && 8.00>ph){
     digitalWrite(10, LOW);  //AZUL
     digitalWrite(11, LOW);  //VERMELHO
     digitalWrite(12, HIGH); //VERDE
     delay(100);
   }
-  if(ph<7.00 || ph>7.00){
+  if(ph<6.00 || ph>=8.00){
     digitalWrite(10, LOW);  //AZUL
     digitalWrite(11, HIGH); //VERMELHO
     digitalWrite(12, LOW);  //VERDE
@@ -91,12 +105,35 @@ void loop() {
     delay(100);
   }
  
- Serial.print("pH Val: ");
+  // while (Serial.available()) {
+  //   message = Serial.readString();
+  //   messageReady = true;
+  // }
+  // if (messageReady) {
+  //   DynamicJsonDocument doc(1024);
+  //   DeserializationError error = deserialzeJson(doc,message);
+  //   if(error){
+  //     Serial.print(F("deserialzeJson() failed: ")); Serial.println(error.c_str());
+  //     messageReady = false;
+  //     return;
+  //   }
+  //   if (doc["type"] == "request") {
+  //     doc["type"] = "response";
+  //     doc["ph_DATA"] = ph;
+  //     doc["temp_DATA"] = temperature;
+  //     serializeJson(doc,Serial);
+  //   }
+  // }
+
+ Serial.println("");
+ Serial.print("pH_DATA:");
  Serial.println(ph);  //monitor e esp8266
- Serial.print("Temp Val: ");
- Serial.println(Temperature); //monitor e esp8266
+ Serial.print("temp_DATA:");
+ Serial.println();
+ Serial.println(temperature); //monitor e esp8266
+ Serial.println("");
  display_pHValue();
- delay(1000);
+ delay(4700);
 }
  
 void display_pHValue()
@@ -113,13 +150,12 @@ void display_pHValue()
  
 
   display.setTextSize(2);
-  display.setCursor(0,30);
+  display.setCursor(0,25);
   display.print("Temp:");
  
   display.setTextSize(2);
-  display.setCursor(70, 30);
-  display.print(22);
-  display.setCursor(95, 50);
+  display.setCursor(70, 25);
+  display.print(temperature);
 
  display.display();
 }
