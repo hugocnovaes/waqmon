@@ -1,4 +1,7 @@
 # Projeto WAQMON
 Sistema de Monitoramento da Qualidade da Água
 
-Obs.: Necessário usar o arquivo config.txt como config.h e configurar a conexão wifi e o AdafruitKey
+
+Obs.: 
+- Necessário usar o arquivo config.txt como config.h e configurar a conexão wifi e o AdafruitKey
+- Software do diagrama elétrico: Fritzing (WAQMON.fzz)
